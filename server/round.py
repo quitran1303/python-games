@@ -8,11 +8,24 @@ class Round(object):
         self.word = word
         self.player_drawing = player_drawing
         self.player_guessed = []
-        self.skip = 0 
+        self.skips = 0
         self.play_scores = {player:0 for player in players}
         self.time = 75
         self.chat = Chat(self)
         start_new_thread(self.time_thread, ())
+
+    def skip(self):
+        """
+        Return true if round skipped threshold met
+        :return: bool
+        """
+        self.skips += 1
+        ##Where the self.players??
+        if self.skips > len(self.players) - 2:
+            self.skips = 0
+            return True
+
+        return False
 
     def time_thread(self):
         while self.time > 0:
