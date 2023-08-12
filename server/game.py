@@ -3,17 +3,18 @@ from .board import Board
 from .round import Round
 
 class Game(object):
-    def __init__(self, id, players):
+    def __init__(self, id, players, thread):
         self.id = id
         self.players = []
         self.words_used = []
         self.round = None
-        self.board = None
+        self.board = Board()
+        self.connected_thread = thread
         self.player_draw_ind = 0
         self.start_new_round()
 
     def start_new_round(self):
-        self.round = Round(self.get_word(), self.players[self.player_draw_ind])
+        self.round = Round(self.get_word(), self.players[self.player_draw_ind], self.players, self)
         self.player_draw_ind += 1
 
         if self.player_draw_ind >= len(self.players):
@@ -27,7 +28,7 @@ class Game(object):
         :param guess: str
         :return: bool
         """
-        pass
+        return self.round.guess(player, guess)
 
     def player_disconnected(self, player):
         """
@@ -50,13 +51,32 @@ class Game(object):
             raise Exception("No round started yet")
 
     def round_ended(self):
+        """
+        If the round ends call this
+        :return: None
+        """
         self.round.skips = 0
         self.start_new_round()
+        self.board.clear()
+    def update_board(self, x, y, color):
+        """
+        Calls update method on board
+        :param x: int
+        :param y: int
+        :param color: (int, int, int)
+        :return: None
+        """
 
-    def update_board(self):
-        pass
+        if not self.board:
+            raise Exception("No board created")
+
+        self.board.update(x,y,color)
     
     def end_game(self):
+        """
+
+        :return:
+        """
         pass
 
     def get_word(self):

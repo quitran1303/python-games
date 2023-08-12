@@ -4,12 +4,12 @@ from .game import Game
 from .chat import Chat
 
 class Round(object):
-    def __init__(self, word, player_drawing, players):
+    def __init__(self, word, player_drawing, players, game):
         self.word = word
         self.player_drawing = player_drawing
         self.player_guessed = []
         self.skips = 0
-        self.play_scores = {player:0 for player in players}
+        self.player_scores = {player:0 for player in players}
         self.time = 75
         self.chat = Chat(self)
         start_new_thread(self.time_thread, ())
@@ -26,6 +26,23 @@ class Round(object):
             return True
 
         return False
+
+    def get_scores(self):
+        """
+        :return: all the scores of players
+        """
+        return self.player_scores
+
+    def get_score(self, player):
+        """
+        return score of specific player
+        :param player: Player
+        :return: int
+        """
+        if player in self.player_scores:
+            return self.player_scores[player]
+        else:
+            raise Exception("Player not in score list")
 
     def time_thread(self):
         while self.time > 0:
@@ -47,8 +64,8 @@ class Round(object):
         remove player that left from scores and list
         """
 
-        if player in self.play_scores:
-            del self.play_scores[player]
+        if player in self.player_scores:
+            del self.player_scores[player]
 
         if player in self.player_guessed:
             self.player_guessed.remove(player)
