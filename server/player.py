@@ -1,9 +1,6 @@
 """
 Player object
 """
-
-from .game import Game
-
 class Player(object):
     def __init__(self, ip, name):
         """
@@ -45,7 +42,7 @@ class Player(object):
         Call to disconnect player
         :return: None
         """
-        pass
+        self.game.player_disconnected(self)
 
     def get_score(self):
         """

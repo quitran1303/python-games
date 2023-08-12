@@ -1,15 +1,17 @@
 import time as t
 from _thread import *
-from .game import Game
-from .chat import Chat
+from chat import Chat
+
 
 class Round(object):
     def __init__(self, word, player_drawing, players, game):
         self.word = word
+        self.game = game
+        self.players = players
         self.player_drawing = player_drawing
         self.player_guessed = []
         self.skips = 0
-        self.player_scores = {player:0 for player in players}
+        self.player_scores = {player: 0 for player in players}
         self.time = 75
         self.chat = Chat(self)
         start_new_thread(self.time_thread, ())
@@ -57,8 +59,8 @@ class Round(object):
         correct = wrd == self.word
         if correct:
             self.player_guessed.append(player)
-            #TODO implement scoreing system here
-            
+            # TODO implement scoreing system here
+
     def player_left(self, player):
         """
         remove player that left from scores and list
@@ -71,8 +73,9 @@ class Round(object):
             self.player_guessed.remove(player)
 
         if player == self.player_drawing:
-            self.end_round()
+            self.end_round("Drawing player leaves")
 
-    def end_round(self,msg):
-        #TODO implement end_round functionality
-        pass
+    def end_round(self, msg):
+        for player in self.players:
+            player.update_score(self.player_scores[player])
+        self.game.round_ended()
