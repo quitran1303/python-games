@@ -10,7 +10,7 @@ import json
 import logging
 
 class Server(object):
-    PLAYERS = 1
+    PLAYERS = 3
     logging.basicConfig(
         format='%(levelname)-8s [%(filename)s:%(lineno)d %(funcName)s] %(message)s',
         datefmt='%Y-%m-%d:%H:%M:%S',
@@ -59,6 +59,7 @@ class Server(object):
                             send_msg[0] = correct
                         elif key == 1:  # skip
                             skip = player.game.skip()
+                            print("skip = ",skip)
                             send_msg[1] = skip
                         elif key == 2:  # get chat
                             content = player.game.round.chat.get_chat()
@@ -91,6 +92,7 @@ class Server(object):
                 self.logger.exception(f"[EXCEPTION] {player.get_name()}: %s", e)
                 break
         self.logger.info(f"[DISCONNECT] {player.get_name()} DISCONNECTED")
+        # player.game.player_disconnected(player)
         conn.close()
 
     def handle_queue(self, player):
@@ -138,7 +140,7 @@ class Server(object):
 
     def connection_thread(self):
         server = "localhost"
-        port = 5558
+        port = 5555
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

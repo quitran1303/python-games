@@ -6,7 +6,7 @@ class Network:
     def __init__(self, name):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = 'localhost'
-        self.port = 5558
+        self.port = 5555
         self.addr = (self.server, self.port)
         self.name = name
         self.connect()
@@ -33,8 +33,15 @@ class Network:
 
 # n = Network("Qui coding 1")
 # n = Network("Qui coding 2")
+# # n = Network("Qui coding 3")
 # n = Network("Qui coding 3")
-n = Network("Qui coding 3")
-
+#
 # print(n.send({0:['Nose']}))
-print(n.send({-1:[]}))
+# print(n.send({-1:[]}))
+# # print(n.send({1:[]}))
+
+n = Network("Qui coding 4")
+n = Network("Qui coding 5")
+n = Network("Qui coding 6")
+
+print(n.send({1:[]}))
