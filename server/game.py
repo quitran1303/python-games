@@ -1,12 +1,13 @@
 from board import Board
 from round import Round
 import random
+import os
 
 
 class Game(object):
     def __init__(self, id, players):
         self.id = id
-        self.players = []
+        self.players = players
         self.words_used = set()
         self.round = None
         self.board = Board()
@@ -16,6 +17,7 @@ class Game(object):
 
     def start_new_round(self):
         round_word = self.get_word()
+        print(f"Index = ", self.player_draw_ind, ", len =", len(self.players))
         self.round = Round(round_word, self.players[self.player_draw_ind], self.players, self)
         self.round_count += 1
 
@@ -106,6 +108,7 @@ class Game(object):
         """
         give a word that has not yet been used
         """
+        cwd = os.getcwd()
         with open("words.txt", "r") as f:
             words = []
             for line in f:

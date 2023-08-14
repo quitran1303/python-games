@@ -59,7 +59,10 @@ class Round(object):
         correct = wrd == self.word
         if correct:
             self.player_guessed.append(player)
-            # TODO implement scoreing system here
+            # TODO implement scoring system here
+            return True
+
+        return False
 
     def player_left(self, player):
         """

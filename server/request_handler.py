@@ -7,9 +7,16 @@ import threading
 from player import Player
 from game import Game
 import json
-class Server(object):
-    PLAYERS = 8
+import logging
 
+class Server(object):
+    PLAYERS = 1
+    logging.basicConfig(
+        format='%(levelname)-8s [%(filename)s:%(lineno)d %(funcName)s] %(message)s',
+        datefmt='%Y-%m-%d:%H:%M:%S',
+        level=logging.DEBUG
+    )
+    logger = logging.getLogger(__name__)
     def __init__(self):
         self.connection_queue = []
         self.game_id = 0
@@ -28,7 +35,7 @@ class Server(object):
                 try:
                     data = conn.recv(1024)
                     data = json.loads(data.decode())
-                    print("[LOG]", data)
+                    self.logger.info(f"data {data}")
                 except Exception as e:
                     break
 
@@ -38,15 +45,17 @@ class Server(object):
 
                 for key in keys:
                     if key == -1:  # get game, returns a list of players
+                        self.logger.info(f"player.game= {player.game}")
                         if player.game:
-                            send_msg[-1] = player.game.players
+                            send = {player.get_name(): player.get_score() for player in player.game.players}
+                            send_msg[-1] = send
                         else:
                             send_msg[-1] = []
 
                     if player.game:
-                        print("[LOG] player", player.game)
                         if key == 0:  # guess
-                            correct = player.game.player_guess(player, data[0][0])
+                            correct = player.game.player_guess(player, data['0'][0])
+                            print("Correct", correct)
                             send_msg[0] = correct
                         elif key == 1:  # skip
                             skip = player.game.skip()
@@ -79,9 +88,9 @@ class Server(object):
                 conn.sendall(json.dumps(send_msg).encode())
 
             except Exception as e:
-                print(f"[EXCEPTION] {player.get_name()}:", e)
+                self.logger.exception(f"[EXCEPTION] {player.get_name()}: %s", e)
                 break
-        # print(f"[DISCONNECT] {player.get_name()} DISCONNECTED")
+        self.logger.info(f"[DISCONNECT] {player.get_name()} DISCONNECTED")
         conn.close()
 
     def handle_queue(self, player):
@@ -93,13 +102,14 @@ class Server(object):
         self.connection_queue.append(player)
 
         if len(self.connection_queue) >= self.PLAYERS:
-            game = Game(self.connection_queue[:], self.game_id)
+            game = Game(self.game_id, self.connection_queue[:])
 
             for p in self.connection_queue:
                 p.set_game(game)
 
             self.game_id += 1
             self.connection_queue = []
+            self.logger.info(f"Game {self.game_id - 1} started {game.round.word}")
 
     def authentication(self, conn, addr):
         """
@@ -111,23 +121,24 @@ class Server(object):
         try:
             data = conn.recv(1024)
             name = str(data.decode())
+            self.logger.info(f"player name = {name} ")
             if not name:
                 raise Exception("No name received")
 
-            print(name)
             conn.sendall("1".encode())
             player = Player(addr, name)
+            self.logger.info(f"Player = {player.get_name()}, game = {player.game}")
             self.handle_queue(player)
-
+            self.logger.info(f"Player game = {player.game}")
             thread = threading.Thread(target=self.player_thread, args=(conn, player))
             thread.start()
         except Exception as e:
-            print("[EXCEPTION", e)
+            self.logger.exception(f"[EXCEPTION {e}")
             conn.close()
 
     def connection_thread(self):
         server = "localhost"
-        port = 5556
+        port = 5558
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -137,11 +148,11 @@ class Server(object):
             str(e)
 
         s.listen()
-        print("Waiting for a connection, Server started")
+        self.logger.info("Waiting for a connection, Server started")
 
         while True:
             conn, addr = s.accept()
-            print("[CONNECT] New connection!")
+            self.logger.info("[CONNECT] New connection!")
             self.authentication(conn, addr)
 
 

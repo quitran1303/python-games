@@ -34,7 +34,7 @@ class Board(object):
         Creates an empty board (all white)
         :return: None
         """
-        return self.data[[(255, 255, 255) for _ in range(self.COLS)] in range(self.ROWS)]
+        return [[0 for _ in range(self.COLS)] for _ in range(self.ROWS)]
 
     def fill(self, x, y):
         """
