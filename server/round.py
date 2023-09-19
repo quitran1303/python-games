@@ -7,11 +7,11 @@ class Round(object):
     def __init__(self, word, player_drawing, players, game):
         self.word = word
         self.game = game
-        self.players = players
+        # self.players = players
         self.player_drawing = player_drawing
         self.player_guessed = []
         self.skips = 0
-        self.player_scores = {player: 0 for player in players}
+        self.player_scores = {player: 0 for player in self.game.players}
         self.time = 75
         self.chat = Chat(self)
         start_new_thread(self.time_thread, ())
@@ -23,7 +23,7 @@ class Round(object):
         """
         self.skips += 1
         ##Where the self.players??
-        if self.skips > len(self.players) - 2:
+        if self.skips > len(self.game.players) - 2:
             self.skips = 0
             return True
 
@@ -33,7 +33,7 @@ class Round(object):
         """
         :return: all the scores of players
         """
-        return self.player_scores
+        return self.game.player_scores
 
     def get_score(self, player):
         """
@@ -79,6 +79,7 @@ class Round(object):
             self.end_round("Drawing player leaves")
 
     def end_round(self, msg):
-        for player in self.players:
+        for player in self.game.players:
             player.update_score(self.player_scores[player])
         self.game.round_ended()
+

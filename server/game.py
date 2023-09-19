@@ -107,7 +107,7 @@ class Game(object):
         """
         print(f"[GAME] Game {self.id} ended")
         for player in self.players:
-            self.round.player_left(player)
+            player.game = None
 
     def get_word(self):
         """
